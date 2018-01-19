@@ -3,7 +3,8 @@
   "parser": "babel-eslint",
   "plugins": [
     "react",
-    "jest"
+    "jest",
+    "flowtype"
   ],
   "env": {
     "es6": true,
@@ -94,6 +95,18 @@
     "no-restricted-properties": ["off", {
       "object": "Math",
       "property": "pow"
-    }]
+    }],
+
+    // Opting out of prefer destructuring (nicer with flow in lots of cases)
+    "prefer-destructuring": "off",
+
+    // Opting out of specific object styles for now
+    "object-curly-newline": "off",
+
+    // Opting out of specific paren styles for now
+    "function-paren-newline": "off",
+
+    // Require // @flow at the top of files
+    "flowtype/require-valid-file-annotation": ["error", "always", { "annotationStyle": "line" }]
   }
 }

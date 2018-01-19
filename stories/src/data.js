@@ -133,3 +133,11 @@ export const authorQuoteMap: QuoteMap =
     ...previous,
     [author.name]: getByAuthor(author, quotes),
   }), {});
+
+export const generateQuoteMap = (total: number): QuoteMap => authors.reduce(
+  (previous: QuoteMap, author: Author) => ({
+    ...previous,
+    [author.name]: getQuotes(total / authors.length),
+  }),
+  {}
+);

@@ -33,23 +33,25 @@ const Header = styled.div`
   }
 `;
 
-export default class Column extends Component {
-  props: {|
-    title: string,
-    quotes: Quote[],
-    autoFocusQuoteId: ?string,
-  |}
+type Props = {|
+  title: string,
+  quotes: Quote[],
+  index: number,
+  autoFocusQuoteId: ?string,
+|}
 
+export default class Column extends Component<Props> {
   render() {
     const title: string = this.props.title;
     const quotes: Quote[] = this.props.quotes;
+    const index: number = this.props.index;
     return (
-      <Draggable draggableId={title} type="COLUMN">
+      <Draggable draggableId={title} index={index}>
         {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
           <Wrapper>
             <Container
               innerRef={provided.innerRef}
-              style={provided.draggableStyle}
+              {...provided.draggableProps}
             >
               <Header isDragging={snapshot.isDragging}>
                 <Title

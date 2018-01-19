@@ -18,12 +18,12 @@ import type {
   DroppableId,
   DraggableLocation,
   DraggableDimension,
+  Placeholder,
 } from '../../types';
 import type {
   OwnProps,
   MapProps,
   Selector,
-  Placeholder,
 } from './droppable-types';
 
 export const makeSelector = (): Selector => {
@@ -41,39 +41,32 @@ export const makeSelector = (): Selector => {
     },
   );
 
-  const memoizedPlaceholder = memoizeOne((width: number, height: number): Placeholder => ({
-    width, height,
-  }));
-
   const getPlaceholder = memoizeOne(
     (id: DroppableId,
-      source: DraggableLocation,
       destination: ?DraggableLocation,
       draggable: ?DraggableDimension
     ): ?Placeholder => {
-      if (!destination) {
-        return null;
-      }
-      // no placeholder needed for this droppable
-      if (destination.droppableId !== id) {
-        return null;
-      }
-
-      // no placeholder needed when dragging over the source list
-      if (source.droppableId === destination.droppableId) {
-        return null;
-      }
-
+      // not dragging anything
       if (!draggable) {
         return null;
       }
 
-      const placeholder: Placeholder = memoizedPlaceholder(
-        draggable.client.withoutMargin.width,
-        draggable.client.withoutMargin.height,
-      );
+      // not dragging over any droppable
+      if (!destination) {
+        return null;
+      }
 
-      return placeholder;
+      // no placeholder needed when dragging over the home droppable
+      if (id === draggable.descriptor.droppableId) {
+        return null;
+      }
+
+      // not over this droppable
+      if (id !== destination.droppableId) {
+        return null;
+      }
+
+      return draggable.placeholder;
     }
   );
 
@@ -113,9 +106,8 @@ export const makeSelector = (): Selector => {
 
         const placeholder: ?Placeholder = getPlaceholder(
           id,
-          drag.initial.source,
           drag.impact.destination,
-          draggable
+          draggable,
         );
         return getMapProps(isDraggingOver, placeholder);
       }
@@ -129,9 +121,8 @@ export const makeSelector = (): Selector => {
         const isDraggingOver = getIsDraggingOver(id, pending.impact.destination);
         const placeholder: ?Placeholder = getPlaceholder(
           id,
-          pending.result.source,
           pending.result.destination,
-          draggable
+          draggable,
         );
         return getMapProps(isDraggingOver, placeholder);
       }
@@ -149,6 +140,7 @@ const makeMapStateToProps = () => {
 // Leaning heavily on the default shallow equality checking
 // that `connect` provides.
 // It avoids needing to do it own within `Droppable`
+// $ExpectError - no idea how to type this correctly
 export default connect(
   // returning a function to ensure each
   // Droppable gets its own selector
@@ -157,3 +149,4 @@ export default connect(
   null,
   { storeKey },
 )(Droppable);
+

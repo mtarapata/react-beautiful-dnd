@@ -1,10 +1,9 @@
-import type { Position, Direction } from '../../types';
-
-export type DragTypes = 'KEYBOARD' | 'MOUSE';
+// @flow
+import type { Node } from 'react';
+import type { Position, Direction, DraggableId } from '../../types';
 
 export type Callbacks = {|
-  onLift: (point: Position) => void,
-  onKeyLift: () => void,
+  onLift: ({ client: Position, isScrollAllowed: boolean }) => void,
   onMove: (point: Position) => void,
   onWindowScroll: (diff: Position) => void,
   onMoveForward: () => void,
@@ -15,12 +14,17 @@ export type Callbacks = {|
   onCancel: () => void,
 |}
 
-export type Provided = {|
+export type DragHandleProps = {|
   onMouseDown: (event: MouseEvent) => void,
   onKeyDown: (event: KeyboardEvent) => void,
+  onTouchStart: (event: TouchEvent) => void,
+  onTouchMove: (event: TouchEvent) => void,
 
   // Conditionally block clicks
   onClick: (event: MouseEvent) => void,
+
+  // Control styling from style marshal
+  'data-react-beautiful-dnd-drag-handle': string,
 
   // Allow tabbing to this element
   tabIndex: number,
@@ -30,23 +34,22 @@ export type Provided = {|
 
   // Stop html5 drag and drop
   draggable: boolean,
-  onDragStart: () => void,
-  onDrop: () => void
+  onDragStart: () => boolean,
+  onDrop: () => boolean
 |}
 
 export type Props = {|
+  draggableId: DraggableId,
+  // callbacks provided by the draggable
+  callbacks: Callbacks,
   isEnabled: boolean,
   // whether the application thinks a drag is occurring
   isDragging: boolean,
-  // dragging is otherwise enabled - but cannot lift at this time
-  canLift: boolean,
   // the direction of the current droppable
   direction: ?Direction,
-  callbacks: Callbacks,
-  children: (?Provided) => void,
+  // get the ref of the draggable
+  getDraggableRef: () => ?HTMLElement,
+  // whether interactive elements should be permitted to start a drag
+  canDragInteractiveElements: boolean,
+  children: (?DragHandleProps) => Node,
 |}
-
-// Custom event format for force press inputs
-export type MouseForceChangedEvent = MouseEvent & {
-  webkitForce?: number,
-}

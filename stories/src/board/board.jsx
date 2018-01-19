@@ -14,13 +14,16 @@ import type {
 } from '../../../src/';
 import type { QuoteMap } from '../types';
 
-const isDraggingClassName = 'is-dragging';
-
 const publishOnDragStart = action('onDragStart');
 const publishOnDragEnd = action('onDragEnd');
 
+const ParentContainer = styled.div`
+  height: ${({ height }) => height};
+  overflow-x: hidden;
+  overflow-y: auto;
+`;
+
 const Container = styled.div`
-  background: ${colors.blue.deep};
   min-height: 100vh;
 
   /* like display:flex but will allow bleeding over the window width */
@@ -30,6 +33,7 @@ const Container = styled.div`
 
 type Props = {|
   initial: QuoteMap,
+  containerHeight?: string,
 |}
 
 type State = {|
@@ -38,32 +42,27 @@ type State = {|
   autoFocusQuoteId: ?string,
 |}
 
-export default class Board extends Component {
+export default class Board extends Component<Props, State> {
   /* eslint-disable react/sort-comp */
-  props: Props
-  state: State
 
   state: State = {
     columns: this.props.initial,
     ordered: Object.keys(this.props.initial),
     autoFocusQuoteId: null,
   }
-  /* eslint-enable react/sort-comp */
+
+  boardRef: ?HTMLElement
 
   componentDidMount() {
-    // eslint-disable-next-line no-unused-expressions
     injectGlobal`
-      body.${isDraggingClassName} {
-        cursor: grabbing;
-        user-select: none;
+      body {
+        background: ${colors.blue.deep};
       }
     `;
   }
 
   onDragStart = (initial: DragStart) => {
     publishOnDragStart(initial);
-    // $ExpectError - body wont be null
-    document.body.classList.add(isDraggingClassName);
 
     this.setState({
       autoFocusQuoteId: null,
@@ -72,8 +71,6 @@ export default class Board extends Component {
 
   onDragEnd = (result: DropResult) => {
     publishOnDragEnd(result);
-    // $ExpectError - body wont be null
-    document.body.classList.remove(isDraggingClassName);
 
     // dropped nowhere
     if (!result.destination) {
@@ -113,30 +110,41 @@ export default class Board extends Component {
   render() {
     const columns: QuoteMap = this.state.columns;
     const ordered: string[] = this.state.ordered;
+    const { containerHeight } = this.props;
+
+    const board = (
+      <Droppable
+        droppableId="board"
+        type="COLUMN"
+        direction="horizontal"
+        ignoreContainerClipping={Boolean(containerHeight)}
+      >
+        {(provided: DroppableProvided) => (
+          <Container innerRef={provided.innerRef}>
+            {ordered.map((key: string, index: number) => (
+              <Column
+                key={key}
+                index={index}
+                title={key}
+                quotes={columns[key]}
+                autoFocusQuoteId={this.state.autoFocusQuoteId}
+              />
+            ))}
+          </Container>
+        )}
+      </Droppable>
+    );
 
     return (
       <DragDropContext
         onDragStart={this.onDragStart}
         onDragEnd={this.onDragEnd}
       >
-        <Droppable
-          droppableId="board"
-          type="COLUMN"
-          direction="horizontal"
-        >
-          {(provided: DroppableProvided) => (
-            <Container innerRef={provided.innerRef}>
-              {ordered.map((key: string) => (
-                <Column
-                  key={key}
-                  title={key}
-                  quotes={columns[key]}
-                  autoFocusQuoteId={this.state.autoFocusQuoteId}
-                />
-              ))}
-            </Container>
-          )}
-        </Droppable>
+        {this.props.containerHeight ? (
+          <ParentContainer height={containerHeight}>{board}</ParentContainer>
+        ) : (
+          board
+        )}
       </DragDropContext>
     );
   }

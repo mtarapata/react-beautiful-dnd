@@ -1,7 +1,7 @@
 // @flow
-import getClientRect from '../../src/state/get-client-rect';
+import getArea from '../../src/state/get-area';
 import { getDroppableDimension, getDraggableDimension } from '../../src/state/dimension';
-import { add } from '../../src/state/position';
+import { vertical } from '../../src/state/axis';
 import type {
   Axis,
   Position,
@@ -12,7 +12,7 @@ import type {
   DroppableDimensionMap,
 } from '../../src/types';
 
-export const getPreset = (axis: Axis) => {
+export const getPreset = (axis?: Axis = vertical) => {
   const margin: Spacing = { top: 10, left: 10, bottom: 5, right: 5 };
   const padding: Spacing = { top: 2, left: 2, bottom: 2, right: 2 };
   const windowScroll: Position = { x: 50, y: 100 };
@@ -24,12 +24,15 @@ export const getPreset = (axis: Axis) => {
   const emptyForeignCrossAxisEnd: number = 300;
 
   const home: DroppableDimension = getDroppableDimension({
-    id: 'home',
+    descriptor: {
+      id: 'home',
+      type: 'TYPE',
+    },
     direction: axis.direction,
     padding,
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       // would be 0 but pushed forward by margin
       [axis.start]: 10,
       [axis.crossAxisStart]: crossAxisStart,
@@ -39,12 +42,15 @@ export const getPreset = (axis: Axis) => {
   });
 
   const foreign: DroppableDimension = getDroppableDimension({
-    id: 'foreign',
+    descriptor: {
+      id: 'foreign',
+      type: 'TYPE',
+    },
     padding,
     margin,
     windowScroll,
     direction: axis.direction,
-    clientRect: getClientRect({
+    client: getArea({
       // would be 0 but pushed forward by margin
       [axis.start]: 10,
       [axis.crossAxisStart]: foreignCrossAxisStart,
@@ -54,12 +60,15 @@ export const getPreset = (axis: Axis) => {
   });
 
   const emptyForeign: DroppableDimension = getDroppableDimension({
-    id: 'empty-foreign',
+    descriptor: {
+      id: 'empty-foreign',
+      type: 'TYPE',
+    },
     padding,
     margin,
     windowScroll,
     direction: axis.direction,
-    clientRect: getClientRect({
+    client: getArea({
       // would be 0 but pushed forward by margin
       [axis.start]: 10,
       [axis.crossAxisStart]: emptyForeignCrossAxisStart,
@@ -70,11 +79,14 @@ export const getPreset = (axis: Axis) => {
 
   // size: 10
   const inHome1: DraggableDimension = getDraggableDimension({
-    id: 'inhome1',
-    droppableId: home.id,
+    descriptor: {
+      id: 'inhome1',
+      droppableId: home.descriptor.id,
+      index: 0,
+    },
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       // starting at start of home
       [axis.start]: 10,
       [axis.crossAxisStart]: crossAxisStart,
@@ -84,12 +96,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 20
   const inHome2: DraggableDimension = getDraggableDimension({
-    id: 'inhome2',
-    droppableId: home.id,
+    descriptor: {
+      id: 'inhome2',
+      droppableId: home.descriptor.id,
+      index: 1,
+    },
     // pushed forward by margin of inHome1
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 30,
       [axis.crossAxisStart]: crossAxisStart,
       [axis.crossAxisEnd]: crossAxisEnd,
@@ -98,12 +113,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 30
   const inHome3: DraggableDimension = getDraggableDimension({
-    id: 'inhome3',
-    droppableId: home.id,
+    descriptor: {
+      id: 'inhome3',
+      droppableId: home.descriptor.id,
+      index: 2,
+    },
     margin,
     windowScroll,
     // pushed forward by margin of inHome2
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 60,
       [axis.crossAxisStart]: crossAxisStart,
       [axis.crossAxisEnd]: crossAxisEnd,
@@ -112,12 +130,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 40
   const inHome4: DraggableDimension = getDraggableDimension({
-    id: 'inhome4',
-    droppableId: home.id,
+    descriptor: {
+      id: 'inhome4',
+      droppableId: home.descriptor.id,
+      index: 3,
+    },
     // pushed forward by margin of inHome3
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 100,
       [axis.crossAxisStart]: crossAxisStart,
       [axis.crossAxisEnd]: crossAxisEnd,
@@ -127,11 +148,14 @@ export const getPreset = (axis: Axis) => {
 
   // size: 10
   const inForeign1: DraggableDimension = getDraggableDimension({
-    id: 'inForeign1',
-    droppableId: foreign.id,
+    descriptor: {
+      id: 'inForeign1',
+      droppableId: foreign.descriptor.id,
+      index: 0,
+    },
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 10,
       [axis.crossAxisStart]: foreignCrossAxisStart,
       [axis.crossAxisEnd]: foreignCrossAxisEnd,
@@ -140,12 +164,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 20
   const inForeign2: DraggableDimension = getDraggableDimension({
-    id: 'inForeign2',
-    droppableId: foreign.id,
+    descriptor: {
+      id: 'inForeign2',
+      droppableId: foreign.descriptor.id,
+      index: 1,
+    },
     // pushed forward by margin of inForeign1
     margin,
     windowScroll,
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 30,
       [axis.crossAxisStart]: foreignCrossAxisStart,
       [axis.crossAxisEnd]: foreignCrossAxisEnd,
@@ -154,12 +181,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 30
   const inForeign3: DraggableDimension = getDraggableDimension({
-    id: 'inForeign3',
-    droppableId: foreign.id,
+    descriptor: {
+      id: 'inForeign3',
+      droppableId: foreign.descriptor.id,
+      index: 2,
+    },
     margin,
     windowScroll,
     // pushed forward by margin of inForeign2
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 60,
       [axis.crossAxisStart]: foreignCrossAxisStart,
       [axis.crossAxisEnd]: foreignCrossAxisEnd,
@@ -168,12 +198,15 @@ export const getPreset = (axis: Axis) => {
   });
   // size: 40
   const inForeign4: DraggableDimension = getDraggableDimension({
-    id: 'inForeign4',
-    droppableId: foreign.id,
+    descriptor: {
+      id: 'inForeign4',
+      droppableId: foreign.descriptor.id,
+      index: 3,
+    },
     margin,
     windowScroll,
     // pushed forward by margin of inForeign3
-    clientRect: getClientRect({
+    client: getArea({
       [axis.start]: 100,
       [axis.crossAxisStart]: foreignCrossAxisStart,
       [axis.crossAxisEnd]: foreignCrossAxisEnd,
@@ -182,21 +215,29 @@ export const getPreset = (axis: Axis) => {
   });
 
   const droppables: DroppableDimensionMap = {
-    [home.id]: home,
-    [foreign.id]: foreign,
-    [emptyForeign.id]: emptyForeign,
+    [home.descriptor.id]: home,
+    [foreign.descriptor.id]: foreign,
+    [emptyForeign.descriptor.id]: emptyForeign,
   };
 
   const draggables: DraggableDimensionMap = {
-    [inHome1.id]: inHome1,
-    [inHome2.id]: inHome2,
-    [inHome3.id]: inHome3,
-    [inHome4.id]: inHome4,
-    [inForeign1.id]: inForeign1,
-    [inForeign2.id]: inForeign2,
-    [inForeign3.id]: inForeign3,
-    [inForeign4.id]: inForeign4,
+    [inHome1.descriptor.id]: inHome1,
+    [inHome2.descriptor.id]: inHome2,
+    [inHome3.descriptor.id]: inHome3,
+    [inHome4.descriptor.id]: inHome4,
+    [inForeign1.descriptor.id]: inForeign1,
+    [inForeign2.descriptor.id]: inForeign2,
+    [inForeign3.descriptor.id]: inForeign3,
+    [inForeign4.descriptor.id]: inForeign4,
   };
+
+  const inHomeList: DraggableDimension[] = [
+    inHome1, inHome2, inHome3, inHome4,
+  ];
+
+  const inForeignList: DraggableDimension[] = [
+    inForeign1, inForeign2, inForeign3, inForeign4,
+  ];
 
   return {
     home,
@@ -212,38 +253,14 @@ export const getPreset = (axis: Axis) => {
     emptyForeign,
     droppables,
     draggables,
+    inHomeList,
+    inForeignList,
+    windowScroll,
   };
 };
 
-export const updateDroppableScroll = (
-  droppable: DroppableDimension,
-  addition: Position
-): DroppableDimension => {
-  const newScroll = add(droppable.container.scroll.initial, addition);
-
-  const result: DroppableDimension = {
-    id: droppable.id,
-    axis: droppable.axis,
-    isEnabled: droppable.isEnabled,
-    client: droppable.client,
-    page: droppable.page,
-    container: {
-      scroll: {
-        initial: droppable.container.scroll.initial,
-        current: newScroll,
-      },
-      bounds: droppable.container.bounds,
-    },
-  };
-
-  return result;
-};
-
+// $ExpectError - using spread
 export const disableDroppable = (droppable: DroppableDimension): DroppableDimension => ({
-  id: droppable.id,
-  axis: droppable.axis,
+  ...droppable,
   isEnabled: false,
-  client: droppable.client,
-  page: droppable.page,
-  container: droppable.container,
 });

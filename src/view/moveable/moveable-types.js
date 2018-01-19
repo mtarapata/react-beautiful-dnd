@@ -1,6 +1,6 @@
 // @flow
-import type { HasDefaultProp } from 'babel-plugin-react-flow-props-to-prop-types';
-import type { Position, ReactElement } from '../../types';
+import type { Node } from 'react';
+import type { Position } from '../../types';
 
 export type Speed = 'INSTANT' | 'STANDARD' | 'FAST';
 
@@ -9,10 +9,10 @@ export type Style = {|
 |}
 
 export type Props = {|
-  children: (?Style) => ?ReactElement,
   speed: Speed,
-  destination: HasDefaultProp<Position>,
-  onMoveEnd?: () => void,
+  destination: Position,
+  onMoveEnd: () => void,
+  children: (Style) => Node,
 |}
 
 export type DefaultProps = {|
